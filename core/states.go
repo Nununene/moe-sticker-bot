@@ -2,10 +2,13 @@ package core
 
 import (
 	"errors"
+	"fmt"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/star-39/moe-sticker-bot/pkg/msbimport"
@@ -178,6 +181,25 @@ func confirmImport(c tele.Context, wantEmoji bool) error {
 	ud.stickerData.id = checkGnerateSIDFromLID(ud.lineData)
 	workDir := filepath.Join(ud.workDir, ud.lineData.Id)
 	sendAskTitle_Import(c)
+	progressText, progressMsg, _ := sendProcessStarted(ud, c, "Starting import...")
+	var progressMu sync.Mutex
+	lastProgressEdit := time.Time{}
+	ud.lineData.Progress = func(stage string, current, total int64) {
+		progressMu.Lock()
+		defer progressMu.Unlock()
+		now := time.Now()
+		if !lastProgressEdit.IsZero() && now.Sub(lastProgressEdit) < time.Second && (total == 0 || current < total) {
+			return
+		}
+		lastProgressEdit = now
+		var detail string
+		if total > 0 {
+			detail = fmt.Sprintf("%s: %d%% (%d/%d)", stage, current*100/total, current, total)
+		} else {
+			detail = fmt.Sprintf("%s: %d bytes", stage, current)
+		}
+		_ = editProgressMsg(0, 0, "<code>"+detail+"</code>", progressText, progressMsg, c)
+	}
 	ud.wg.Add(1)
 	err = msbimport.PrepareImportStickers(ud.ctx, ud.lineData, workDir, true, wantEmoji)
 	ud.wg.Done()

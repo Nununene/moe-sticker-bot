@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"strings"
+	"sync"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -44,6 +45,9 @@ func ParseImportLink(link string, ld *LineData) (string, error) {
 // convertToTGFormat: Convert original stickers to Telegram sticker format.
 // convertToTGEmoji: If present sticker set is Emoji(LINE), convert to 100x100 Telegram CustomEmoji.
 func PrepareImportStickers(ctx context.Context, ld *LineData, workDir string, convertToTGFormat bool, convertToTGEmoji bool) error {
+	if ld.Progress != nil {
+		ld.Progress("Downloading archive", 0, 0)
+	}
 	switch ld.Store {
 	case "line":
 		return prepareLineStickers(ctx, ld, workDir, convertToTGFormat, convertToTGEmoji)
@@ -57,6 +61,9 @@ func PrepareImportStickers(ctx context.Context, ld *LineData, workDir string, co
 // which means WEBM for animated and WEBP for static
 // with 512x512 dimension.
 func convertSToTGFormat(ctx context.Context, ld *LineData) {
+	var progressMu sync.Mutex
+	completed := int64(0)
+	total := int64(len(ld.Files))
 	for _, s := range ld.Files {
 		select {
 		case <-ctx.Done():
@@ -67,6 +74,14 @@ func convertSToTGFormat(ctx context.Context, ld *LineData) {
 		var err error
 		// If lineS is animated, commit to worker pool
 		// since encoding vp9 is time and resource costy.
+		s.Progress = func() {
+			progressMu.Lock()
+			defer progressMu.Unlock()
+			completed++
+			if ld.Progress != nil {
+				ld.Progress("Converting stickers", completed, total)
+			}
+		}
 		if ld.IsAnimated {
 			wpConvertWebm.Invoke(s)
 		} else {
@@ -75,6 +90,7 @@ func convertSToTGFormat(ctx context.Context, ld *LineData) {
 				s.CError = err
 			}
 			s.Wg.Done()
+			s.Progress()
 		}
 	}
 }

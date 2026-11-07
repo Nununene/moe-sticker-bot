@@ -27,5 +27,8 @@ func wConvertWebm(i interface{}) {
 	if err != nil {
 		lf.CError = err
 	}
+	if lf.Progress != nil {
+		lf.Progress()
+	}
 	log.Debugln("convert OK: ", lf.ConvertedFile)
 }
