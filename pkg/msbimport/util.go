@@ -1,11 +1,14 @@
 package msbimport
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 	"path"
@@ -20,30 +23,100 @@ var httpClient = &http.Client{
 	Timeout: 10 * time.Second,
 }
 
-func httpDownload(link string, f string) error {
-	res, err := http.Get(link)
-	if err != nil {
-		return err
-	}
-	defer res.Body.Close()
-	fp, _ := os.Create(f)
-	defer fp.Close()
-	_, err = io.Copy(fp, res.Body)
-	return err
+var downloadClient = &http.Client{
+	Timeout: 2 * time.Minute,
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		if len(via) >= 10 {
+			return errors.New("too many redirects")
+		}
+		if len(via) > 0 && via[len(via)-1].URL.Scheme == "https" && req.URL.Scheme != "https" {
+			return errors.New("refusing HTTPS downgrade redirect")
+		}
+		return nil
+	},
 }
 
-func httpDownloadCurlUA(link string, f string) error {
-	req, _ := http.NewRequest("GET", link, nil)
-	req.Header.Set("User-Agent", "curl/7.61.1")
-	res, err := httpClient.Do(req)
+const maxStickerDownloadSize = 100 * 1024 * 1024
+
+type DownloadProgressFunc func(current, total int64)
+
+type progressReader struct {
+	r        io.Reader
+	current  int64
+	total    int64
+	callback DownloadProgressFunc
+}
+
+func (r *progressReader) Read(p []byte) (int, error) {
+	n, err := r.r.Read(p)
+	r.current += int64(n)
+	if r.callback != nil && n > 0 {
+		r.callback(r.current, r.total)
+	}
+	return n, err
+}
+
+func downloadFile(link, filePath, userAgent string, callback DownloadProgressFunc) error {
+	u, err := url.ParseRequestURI(link)
+	if err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http") || u.User != nil {
+		return errors.New("invalid download URL")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u.String(), nil)
+	if err != nil {
+		return err
+	}
+	if userAgent != "" {
+		req.Header.Set("User-Agent", userAgent)
+	}
+	res, err := downloadClient.Do(req)
 	if err != nil {
 		return err
 	}
 	defer res.Body.Close()
-	fp, _ := os.Create(f)
-	defer fp.Close()
-	_, err = io.Copy(fp, res.Body)
-	return err
+	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
+		return fmt.Errorf("download returned HTTP %s", res.Status)
+	}
+	if res.ContentLength > maxStickerDownloadSize {
+		return fmt.Errorf("download exceeds %d byte limit", maxStickerDownloadSize)
+	}
+	tmp, err := os.CreateTemp(filepath.Dir(filePath), ".download-*.tmp")
+	if err != nil {
+		return err
+	}
+	tmpName := tmp.Name()
+	defer os.Remove(tmpName)
+	reader := &progressReader{r: io.LimitReader(res.Body, maxStickerDownloadSize+1), total: res.ContentLength, callback: callback}
+	n, copyErr := io.Copy(tmp, reader)
+	if copyErr != nil {
+		tmp.Close()
+		return copyErr
+	}
+	if n > maxStickerDownloadSize {
+		tmp.Close()
+		return fmt.Errorf("download exceeds %d byte limit", maxStickerDownloadSize)
+	}
+	if n == 0 {
+		tmp.Close()
+		return errors.New("download returned an empty file")
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	return os.Rename(tmpName, filePath)
+}
+
+func httpDownload(link string, f string) error {
+	return downloadFile(link, f, "", nil)
+}
+
+func httpDownloadCurlUA(link string, f string, callback ...DownloadProgressFunc) error {
+	var progress DownloadProgressFunc
+	if len(callback) > 0 {
+		progress = callback[0]
+	}
+	return downloadFile(link, f, "curl/7.61.1", progress)
 }
 
 func httpGet(link string) (string, error) {
@@ -87,9 +160,7 @@ func httpGetAndroidUA(link string) (string, error) {
 }
 
 func fDownload(link string, savePath string) error {
-	cmd := exec.Command("curl", "-o", savePath, link)
-	_, err := cmd.CombinedOutput()
-	return err
+	return httpDownloadCurlUA(link, savePath)
 }
 
 func fExtract(f string) string {
