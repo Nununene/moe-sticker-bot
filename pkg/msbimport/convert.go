@@ -92,7 +92,7 @@ func CheckDeps() []string {
 func IMToWebpTGStatic(f string, isCustomEmoji bool) (string, error) {
 	pathOut := f + ".webp"
 	bin := CONVERT_BIN
-	args := CONVERT_ARGS
+	args := append([]string{}, CONVERT_ARGS...)
 	if isCustomEmoji {
 		args = append(args, "-resize", "100x100", "-gravity", "center", "-extent", "100x100", "-background", "none")
 	} else {
@@ -113,9 +113,20 @@ func IMToWebpTGStatic(f string, isCustomEmoji bool) (string, error) {
 
 	// 100x100 should never exceed 255KIB, no need for extra check.
 	if st.Size() > 255*KiB {
-		args := CONVERT_ARGS
+		args := append([]string{}, CONVERT_ARGS...)
 		args = append(args, "-resize", "512x512", "-filter", "Lanczos", f+"[0]", pathOut)
-		exec.Command(bin, args...).CombinedOutput()
+		out, convertErr := exec.Command(bin, args...).CombinedOutput()
+		if convertErr != nil {
+			log.Warnln("IMToWebpTGStatic fallback conversion ERROR:", string(out))
+			return "", convertErr
+		}
+		st, err = os.Stat(pathOut)
+		if err != nil {
+			return "", err
+		}
+		if st.Size() > 255*KiB {
+			return "", errors.New("converted webp exceeds 255 KiB")
+		}
 	}
 
 	return pathOut, err
