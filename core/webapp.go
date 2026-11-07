@@ -12,6 +12,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -289,23 +290,57 @@ func apiEditMove(c *gin.Context) {
 }
 
 func apiInitData(c *gin.Context) {
-	//We must verify the initData before using it
-	queryID := c.PostForm("query_id")
-	authDate := c.PostForm("auth_date")
-	user := c.PostForm("user")
-	hash := c.PostForm("hash")
-	dataCheckString := strings.Join([]string{
-		"auth_date=" + authDate,
-		"query_id=" + queryID,
-		"user=" + user}, "\n")
-	if !validateHMAC(dataCheckString, hash) {
-		log.Warning("WebApp DCS HMAC failed, corrupt or attack?")
-		c.String(http.StatusBadRequest, "data_check_string HMAC validation failed!!")
-		return
-	}
-	log.Debug("WebApp initData DCS HMAC OK.")
+        // Verify Telegram WebApp initData.
+        if err := c.Request.ParseForm(); err != nil {
+                c.String(http.StatusBadRequest, "invalid form data")
+                return
+        }
 
-	initWebAppRequest(c)
+        form := c.Request.PostForm
+        hash := form.Get("hash")
+
+        if hash == "" {
+                c.String(http.StatusBadRequest, "missing hash")
+                return
+        }
+
+        keys := make([]string, 0, len(form))
+
+        for key, values := range form {
+                if key == "hash" {
+                        continue
+                }
+
+                if len(values) != 1 {
+                        c.String(http.StatusBadRequest, "invalid initData field")
+                        return
+                }
+
+                keys = append(keys, key)
+        }
+
+        sort.Strings(keys)
+
+        dataCheckParts := make([]string, 0, len(keys))
+
+        for _, key := range keys {
+                dataCheckParts = append(
+                        dataCheckParts,
+                        key+"="+form.Get(key),
+                )
+        }
+
+        dataCheckString := strings.Join(dataCheckParts, "\n")
+
+        if !validateHMAC(dataCheckString, hash) {
+                log.Warning("WebApp DCS HMAC failed, corrupt or attack?")
+                c.String(http.StatusBadRequest, "data_check_string HMAC validation failed!!")
+                return
+        }
+
+        log.Debug("WebApp initData DCS HMAC OK.")
+
+        initWebAppRequest(c)
 }
 
 func initWebAppRequest(c *gin.Context) {
