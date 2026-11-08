@@ -235,12 +235,19 @@ func prepareLineStickers(ctx context.Context, ld *LineData, workDir string, conv
 	savePath := filepath.Join(workDir, "line.zip")
 	os.MkdirAll(workDir, 0755)
 
-	err := fDownload(ld.DLink, savePath)
+	err := httpDownloadCurlUA(ld.DLink, savePath, func(current, total int64) {
+		if ld.Progress != nil {
+			ld.Progress("Downloading archive", current, total)
+		}
+	})
 	if err != nil {
 		return err
 	}
 
 	pngFiles := lineZipExtract(savePath, ld)
+	if ld.Progress != nil {
+		ld.Progress("Extracted stickers", int64(len(pngFiles)), int64(len(pngFiles)))
+	}
 	if len(pngFiles) == 0 {
 		return errors.New("no line image")
 	}
@@ -400,8 +407,16 @@ func prepareLineMessageS(ctx context.Context, ld *LineData, workDir string, need
 			log.Debugln("Preparing one message sticker... index:", i)
 			bPath := filepath.Join(workDir, strconv.Itoa(i)+".base.png")
 			oPath := filepath.Join(workDir, strconv.Itoa(i)+".overlay.png")
-			httpDownloadCurlUA(b, bPath)
-			httpDownloadCurlUA(overlayImages[i], oPath)
+			if err := httpDownloadCurlUA(b, bPath); err != nil {
+				ld.Files[i].CError = err
+				ld.Files[i].Wg.Done()
+				continue
+			}
+			if err := httpDownloadCurlUA(overlayImages[i], oPath); err != nil {
+				ld.Files[i].CError = err
+				ld.Files[i].Wg.Done()
+				continue
+			}
 			f, err := IMStackToWebp(bPath, oPath)
 			if err != nil {
 				ld.Files[i].CError = err
@@ -409,6 +424,9 @@ func prepareLineMessageS(ctx context.Context, ld *LineData, workDir string, need
 			ld.Files[i].ConvertedFile = f
 			ld.Files[i].OriginalFile = f
 			ld.Files[i].Wg.Done()
+			if ld.Progress != nil {
+				ld.Progress("Converting stickers", int64(i+1), int64(len(baseImages)))
+			}
 			log.Debugln("one line message sticker OK:", f)
 		}
 	}()

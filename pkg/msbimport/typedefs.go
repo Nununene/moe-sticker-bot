@@ -43,12 +43,19 @@ type LineFile struct {
 	// path of converted filea
 	ConvertedFile string
 	// conversion error
-	CError error
+	CError   error
+	Progress func()
 }
+
+// ProgressFunc reports an import stage and its current/total work units.
+// A total of zero means that the total is unknown.
+type ProgressFunc func(stage string, current, total int64)
 
 // This is called linedata due to historical reason,
 // instead, it handles "import" data, which includes kakao and line by far.
 type LineData struct {
+	// Optional callback for download, extraction, and conversion progress.
+	Progress ProgressFunc
 	//Waitgroup for when linedata become available.
 	Wg sync.WaitGroup
 	//Store type, defined in const.

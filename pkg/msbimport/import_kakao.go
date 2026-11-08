@@ -110,11 +110,23 @@ func prepareKakaoStickers(ctx context.Context, ld *LineData, workDir string, nee
 			}
 
 			f := filepath.Join(workDir, path.Base(l)+".png")
-			err := httpDownload(l, f)
+			err := httpDownloadCurlUA(l, f, func(current, total int64) {
+				if ld.Progress != nil {
+					ld.Progress("Downloading stickers", current, total)
+				}
+			})
+			if err != nil {
+				ld.Files[i].CError = err
+				ld.Files[i].Wg.Done()
+				continue
+			}
+			cf, err := IMToWebpTGStatic(f, false)
 			if err != nil {
 				ld.Files[i].CError = err
 			}
-			cf, _ := IMToWebpTGStatic(f, false)
+			if ld.Progress != nil {
+				ld.Progress("Converting stickers", int64(i+1), int64(len(ld.DLinks)))
+			}
 			ld.Files[i].OriginalFile = f
 			ld.Files[i].ConvertedFile = cf
 			ld.Files[i].Wg.Done()
@@ -132,12 +144,19 @@ func prepareKakaoZipStickers(ctx context.Context, ld *LineData, workDir string, 
 	os.MkdirAll(workDir, 0755)
 
 	log.Debugln("prepareKakaoZipStickers: downloading zip:", ld.DLink)
-	err := fDownload(ld.DLink, zipPath)
+	err := httpDownloadCurlUA(ld.DLink, zipPath, func(current, total int64) {
+		if ld.Progress != nil {
+			ld.Progress("Downloading archive", current, total)
+		}
+	})
 	if err != nil {
 		return err
 	}
 
 	kakaoFiles := kakaoZipExtract(zipPath, ld)
+	if ld.Progress != nil {
+		ld.Progress("Extracted stickers", int64(len(kakaoFiles)), int64(len(kakaoFiles)))
+	}
 	if len(kakaoFiles) == 0 {
 		return errors.New("no kakao image in zip")
 	}
