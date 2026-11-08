@@ -107,66 +107,30 @@ A: Visit <a href="https://github.com/Nununene/moe-sticker-bot">Nununene/moe-stic
 
 func sendChangelog(c tele.Context) error {
 	return c.Send(`
-Details: 詳細:
-Original project: https://github.com/star-39/moe-sticker-bot#changelog
-Community-maintained version: https://github.com/Nununene/moe-sticker-bot#changelog
-v2.5.0-RC1(20240528)
-* Support mix-typed sticker set.
-* You can add video to static set and vice versa.
-* Removed WhatsApp export temporarily .
-* 支援混合貼圖包。
-* 貼圖包可以同時存入靜態與動態貼圖。
-* 暫時移除WhatsApp匯出功能。
 
-v2.4.0-RC1-RC4(20240304)
-* Support Importing LINE Emoji into CustomEmoji.
-* Support creating CustomEmoji.
-* Support editing sticker emoji and title.
-* 支援LINE表情貼匯入。
-* 支援創建表情貼。
-* 支援修改貼圖Emoji/貼圖包標題。
+Community-maintained version updates / 社群維護版本更新：
+Original project: https://github.com/star-39/moe-sticker-bot
+Community-maintained version: https://github.com/Nununene/moe-sticker-bot
 
-v2.3.13-v2.3.15(20230228)
-* Support region locked LINE Message sticker.
-* Support TGS(Animated) sticker export.
-* Fix TGS(Animated) sticker download. 
-* 支援有區域鎖的line訊息貼圖。
-* 支援TGS貼圖匯出。
-* 修復TGS(動態)貼圖下載問題.
+2026-11-07
+* Fix Telegram WebApp initData validation.
+* Add a Dockerfile to build the bot from the community-maintained source.
+* 修正 Telegram WebApp initData 驗證。
+* 新增從社群維護版原始碼建置 Bot 的 Dockerfile。
 
-v2.3.10(20230217)
-  * Fix kakao import fatal, support more animated kakao.
-  * 修復KAKAO匯入錯誤, 支援更多KAKAO動態貼圖.
-
-v2.3.x (20230216)
-  * Fix flood limit error during import.
-  * Fix animated kakao treated as static.
-  * Improved static kakao quality.
-  * Support changing sticker title.
-  * 修復匯入貼圖時flood limit錯誤。
-  * 修復動態KAKAO被當作靜態.
-  * 提升靜態KAKAO畫質.
-  * 支援修改貼圖包標題.
-  
-v2.2.0 (20230131)
-  * Support animated kakao sticker.
-  * 支援動態kakao貼圖。
-
-v2.1.0 (20230129)
-  * Support exporting sticker to WhatsApp.
-  * 支援匯出貼圖到WhatsApp
-
-v2.0.0 (20230105)
-  * Use new WebApp from /manage command to edit sticker set with ease.
-  * Send text or use /search command to search imported LINE/kakao sticker sets by all users.
-  * Auto import now happens on backgroud.
-  * Downloading sticker set is now lot faster.
-  * Fix many LINE import issues.
-  * 通過 /manage 指令使用新的WebApp輕鬆管理貼圖包.
-  * 直接傳送文字或使用 /search 指令來搜尋所有用戶匯入的LINE/KAKAO貼圖包.
-  * 自動匯入現在會在背景處理.
-  * 下載整個貼圖包的速度現在會快許多.
-  * 修復了許多LINE貼圖匯入的問題.
+2026-11-08
+* Parameterize sticker search and remove bot tokens and database credentials from logs.
+* Register Telegram bot commands.
+* Improve import progress messages, clean up automatic import work directories, and improve sticker conversion quality.
+* Validate and limit downloads; report static WEBP conversion failures.
+* Fix per-sticker emoji assignment by installing its runtime dependency; show the title prompt after preparation finishes.
+* Refresh bot help/about messages and document both project repositories.
+* 將貼圖搜尋改為參數化查詢，並避免在日誌中記錄 Bot Token 與資料庫密碼。
+* 啟動時註冊 Telegram 機器人指令。
+* 改善匯入進度訊息、清理自動匯入暫存目錄並提升貼圖轉檔畫質。
+* 加入下載驗證與大小限制，並回報靜態 WEBP 轉檔錯誤。
+* 補上個別 emoji 設定所需的 runtime 套件，並在貼圖準備完成後才顯示標題選項。
+* 更新 Bot 說明訊息，並並列原始專案與社群維護版連結。
 	`, tele.NoPreview)
 }
 
