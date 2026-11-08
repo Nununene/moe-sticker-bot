@@ -13,9 +13,12 @@ It is designed to be able to operate independentaly from moe-sticker-bot core so
 
 
 ## CLI Usage/終端機程式使用
-Source code of CLI is on: [/moe-sticker-bot/cmd/msbimport](https://github.com/star-39/moe-sticker-bot/tree/master/cmd/msbimport)
+CLI source code:
+- Original project: [/moe-sticker-bot/cmd/msbimport](https://github.com/star-39/moe-sticker-bot/tree/master/cmd/msbimport)
+- Community-maintained version: [/moe-sticker-bot/cmd/msbimport](https://github.com/Nununene/moe-sticker-bot/tree/master/cmd/msbimport)
 
-Download `msbimport`： 下載`msbimport`： https://github.com/star-39/moe-sticker-bot/releases
+Download `msbimport` from the original project's [releases](https://github.com/star-39/moe-sticker-bot/releases) or the community-maintained [releases](https://github.com/Nununene/moe-sticker-bot/releases).
+下載 `msbimport`：原始專案[發佈頁](https://github.com/star-39/moe-sticker-bot/releases)或社群維護版[發佈頁](https://github.com/Nununene/moe-sticker-bot/releases)。
 
 Install dependencies:
 ```bash
@@ -61,6 +64,8 @@ A typical workflow is to call `parseImportLink` then `prepareImportStickers`.
 ```
 go get -u https://github.com/star-39/moe-sticker-bot
 ```
+
+The Go module and import path remain `github.com/star-39/moe-sticker-bot`; the maintained repository is [Nununene/moe-sticker-bot](https://github.com/Nununene/moe-sticker-bot).
 
 
 ```go
