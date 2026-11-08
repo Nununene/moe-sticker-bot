@@ -8,7 +8,7 @@
 
 Use moe-sticker-bot, a Telegram bot, to easily import or download LINE/Kakaotalk/Telegram stickers, use your own image or video to create Telegram sticker set or CustomEmoji and manage it.
 
-This repository is a community-maintained[(@nununenenununeno)](https://t.me/nununenenununeno) fork of [star-39/moe-sticker-bot](https://github.com/star-39/moe-sticker-bot). It contains maintenance fixes and deployment-related improvements.
+This is a community-maintained fork of [star-39/moe-sticker-bot](https://github.com/star-39/moe-sticker-bot), maintained at [Nununene/moe-sticker-bot](https://github.com/Nununene/moe-sticker-bot). For community updates, visit [@nununenenununeno](https://t.me/nununenenununeno). It contains maintenance fixes and deployment-related improvements.
 
 ---
 
@@ -18,7 +18,7 @@ Telegram用萌萌貼圖BOT。
 
 下載Telegram貼圖包/GIF。
 
-本專案是從原始的 [star-39/moe-sticker-bot](https://github.com/star-39/moe-sticker-bot) Fork 出來的維護版本，持續整理及修正程式。
+本專案是 [star-39/moe-sticker-bot](https://github.com/star-39/moe-sticker-bot) 的社群維護版本，維護於 [Nununene/moe-sticker-bot](https://github.com/Nununene/moe-sticker-bot)，持續整理及修正程式。
 
 ## Features/功能
 
