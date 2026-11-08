@@ -234,11 +234,11 @@ func FFToWebmTGVideo(f string, isCustomEmoji bool) (string, error) {
 		rcargs := []string{}
 		switch rc {
 		case 0:
-			rcargs = []string{"-minrate", "50k", "-b:v", "350k", "-maxrate", "450k"}
+			rcargs = []string{"-minrate", "50k", "-b:v", "500k", "-maxrate", "650k"}
 		case 1:
-			rcargs = []string{"-minrate", "50k", "-b:v", "200k", "-maxrate", "300k"}
+			rcargs = []string{"-minrate", "50k", "-b:v", "350k", "-maxrate", "450k"}
 		case 2:
-			rcargs = []string{"-minrate", "20k", "-b:v", "100k", "-maxrate", "200k"}
+			rcargs = []string{"-minrate", "50k", "-b:v", "200k", "-maxrate", "300k"}
 		case 3:
 			rcargs = []string{"-minrate", "10k", "-b:v", "50k", "-maxrate", "100k"}
 		}
