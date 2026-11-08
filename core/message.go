@@ -16,14 +16,22 @@ import (
 
 func sendStartMessage(c tele.Context) error {
 	message := `
-Hi! I'm <a href="https://github.com/star-39/moe-sticker-bot">moe_sticker_bot</a>! Please:
+Hi! I'm moe_sticker_bot!
+
+This bot originated in the <a href="https://github.com/star-39/moe-sticker-bot">original project</a>.
+The community-maintained fork is <a href="https://github.com/Nununene/moe-sticker-bot">here</a>.
+
+Please:
 • Send <b>LINE/Kakao sticker share link</b> to import or download.
 • Send <b>Telegram sticker/link/GIF</b> to download or export to WhatsApp.
 • Send <b>keywords</b> to search sticker sets.
 • Tap to <b>/create</b> or <b>/manage</b> sticker set and CustomEmoji.
 • Tap to check all available <b>/command_list</b>.
 
-你好! 歡迎使用<a href="https://github.com/star-39/moe-sticker-bot">萌萌貼圖BOT</a>! 請：
+你好！我是萌萌貼圖 BOT。
+本機器人源自<a href="https://github.com/star-39/moe-sticker-bot">原始專案</a>，目前由社群維護的版本在<a href="https://github.com/Nununene/moe-sticker-bot">這裡</a>。
+
+你可以：
 • 傳送<b>LINE/kakao貼圖包的分享連結</b>來匯入或下載.
 • 傳送<b>Telegram貼圖/連結/GIF</b>來下載.
 • 傳送<b>關鍵字</b>來搜尋貼圖包.
@@ -48,15 +56,18 @@ func sendCommandList(c tele.Context) error {
 
 func sendAboutMessage(c tele.Context) {
 	c.Send(fmt.Sprintf(`
-<b>Please star for this project on Github if you like this bot!
-如果您喜歡這個bot, 歡迎在Github給本專案標Star喔!
-https://github.com/star-39/moe-sticker-bot</b>
-Thank you @StickerGroup for feedbacks and advices!
+<b>About moe_sticker_bot / 關於萌萌貼圖 BOT</b>
+
+Original project: <a href="https://github.com/star-39/moe-sticker-bot">star-39/moe-sticker-bot</a>
+Community-maintained version: <a href="https://github.com/Nununene/moe-sticker-bot">Nununene/moe-sticker-bot</a>
+
+This is a community-maintained fork of the original project.
+本專案是原始專案的社群維護版本。
+
 <code>
-This free(as in freedom) software is released under the GPLv3 License.
-Comes with ABSOLUTELY NO WARRANTY! All rights reserved.
-本BOT為免費提供的自由軟體, 您可以自由使用/分發, 惟無任何保用(warranty)!	
-本軟體授權於通用公眾授權條款(GPL)v3, 保留所有權利.
+This free software is released under the GPLv3 License.
+It comes with absolutely no warranty.
+本 BOT 依 GPLv3 授權發布，並不提供任何保證。
 </code><b>
 Please send /start to start using
 請傳送 /start 來開始
@@ -68,31 +79,37 @@ Version:版本: %s
 
 func sendFAQ(c tele.Context) {
 	c.Send(fmt.Sprintf(`
-<b>Please hit Star for this project on Github if you like this bot!
-如果您喜歡這個bot, 歡迎在Github給本專案標Star喔!
-https://github.com/star-39/moe-sticker-bot</b>
-------------------------------------
-<b>Q: I got stucked! I can't quit from command!
-我卡住了! 我沒辦法從指令中退出!</b>
-A: Please send /quit to interrupt.
-請傳送 /quit 來中斷.
+<b>FAQ / 常見問題</b>
+Original project: <a href="https://github.com/star-39/moe-sticker-bot">star-39/moe-sticker-bot</a>
+Community-maintained version: <a href="https://github.com/Nununene/moe-sticker-bot">Nununene/moe-sticker-bot</a>
+
+<b>Q: I'm stuck and can't exit a command. What should I do?
+我卡在操作中，無法退出指令，該怎麼辦？</b>
+A: Send /quit to cancel the current operation.
+請傳送 /quit 中斷目前操作。
 
 <b>Q: Why ID has suffix: _by_%s ?
 為甚麼ID的末尾有: _by_%s ?</b>
-A: It's forced by Telegram, bot created sticker set must have its name in ID suffix.
-因為這個是Telegram的強制要求, 由bot創造的貼圖ID末尾必須有bot名字.
+A: Telegram requires bots to use this suffix when creating sticker sets.
+這是 Telegram 對機器人建立貼圖包的命名要求。
 
 <b>Q: Who owns the sticker sets the bot created?
     BOT創造的貼圖包由誰所有?</b>
 A: It's you of course. You can manage them through /manage or Telegram's official @Stickers bot.
     當然是您. 您可以通過 /manage 指令或者Telegram官方的 @Stickers 管理您的貼圖包.
+
+<b>Q: Where can I find the community-maintained source code?
+要在哪裡查看社群維護版的程式碼？</b>
+A: Visit <a href="https://github.com/Nununene/moe-sticker-bot">Nununene/moe-sticker-bot</a>. The original project is <a href="https://github.com/star-39/moe-sticker-bot">star-39/moe-sticker-bot</a>.
+請前往 <a href="https://github.com/Nununene/moe-sticker-bot">社群維護版 GitHub</a>；原始專案也保留在 <a href="https://github.com/star-39/moe-sticker-bot">這裡</a>。
 `, botName, botName), tele.ModeHTML)
 }
 
 func sendChangelog(c tele.Context) error {
 	return c.Send(`
 Details: 詳細:
-https://github.com/star-39/moe-sticker-bot#changelog
+Original project: https://github.com/star-39/moe-sticker-bot#changelog
+Community-maintained version: https://github.com/Nununene/moe-sticker-bot#changelog
 v2.5.0-RC1(20240528)
 * Support mix-typed sticker set.
 * You can add video to static set and vice versa.
@@ -167,8 +184,10 @@ No one else could see or use the stored user identifier.
 All the data being stored is encrypted.
 This bot will never share any of the stored data to anyone or to anywhere else.
 The bot server is physically located at Osaka,Japan. Local laws might apply.
-This bot is free and open source software, you can see https://github.com/star-39/moe-sticker-bot/blob/master/core/database.go
-to investigate how the bot store and process the stored data.
+This bot is free and open source software. The database implementation is available in the original project at
+https://github.com/star-39/moe-sticker-bot/blob/master/core/database.go and in the community-maintained version at
+https://github.com/Nununene/moe-sticker-bot/blob/master/core/database.go.
+Review the source to see how the bot stores and processes data.
 
 <b>私隱聲明:</b>
 本bot不會存儲或分析您的使用情況或行為。
@@ -182,8 +201,9 @@ to investigate how the bot store and process the stored data.
 本bot儲存的所有資訊均經過加密。
 本bot不會分享任何儲存的資訊給任何人或實體或到任何地方。
 本bot伺服器的物理位置位於日本大阪。 當地法律可能適用。
-本bot為自由開放原始碼軟體，請參閱 https://github.com/star-39/moe-sticker-bot/blob/master/core/database.go
-來了解bot如何儲存和處理儲存的資訊。
+本 bot 為自由開放原始碼軟體。資料庫實作可參閱原始專案
+https://github.com/star-39/moe-sticker-bot/blob/master/core/database.go，或社群維護版
+https://github.com/Nununene/moe-sticker-bot/blob/master/core/database.go，了解 bot 如何儲存和處理資料。
 `, tele.ModeHTML, tele.NoPreview)
 }
 
@@ -529,7 +549,8 @@ func sendFatalError(err error, c tele.Context) {
 
 	c.Send("<b>Fatal error encounterd. Please try again. /start\n"+
 		"發生嚴重錯誤. 請您從頭再試一次. /start </b>\n\n"+
-		"You can report this error to https://github.com/star-39/moe-sticker-bot/issues\n\n"+
+		"Original project issues: https://github.com/star-39/moe-sticker-bot/issues\n"+
+		"Community-maintained version issues: https://github.com/Nununene/moe-sticker-bot/issues\n\n"+
 		"<code>"+errMsg+"</code>", tele.ModeHTML, tele.NoPreview)
 }
 
