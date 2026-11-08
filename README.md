@@ -169,6 +169,18 @@ See details in [web/webapp3](web/webapp3).
   - Compile the bot executable from this repository's source code.
   - Use the upstream runtime image as the base image.
 
+### 2026-11-08
+
+- **Improve security and reliability.**
+  - Parameterize sticker search queries and remove bot tokens and database credentials from logs.
+  - Validate sticker download URLs and HTTP responses, cap download sizes, and avoid leaving partial files.
+- **Improve sticker import and bot usability.**
+  - Register Telegram commands, show download and conversion progress, and clean up automatic import work directories.
+  - Improve video conversion quality and report static WEBP conversion failures.
+  - Install the emoji parser dependency in the runtime image and show the title prompt after sticker preparation completes.
+- **Refresh community-maintenance information.**
+  - Update `/start`, `/help`, `/about`, `/faq`, and repository links to identify both the original project and the community-maintained fork.
+
 ---
 <details>
 <summary>Old changelogs</summary>
