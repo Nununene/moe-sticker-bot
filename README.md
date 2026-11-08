@@ -119,6 +119,7 @@ For deployments outside the provided container image, the following dependencies
 - curl
 - gifsicle (for converting GIF)
 - python3 (for following tools)
+- Python `emoji` package (required by `msb_emoji.py`)
 - [msb_emoji.py](tools/msb_emoji.py) (for extracting emoji)
 - [msb_kakao_decrypt.py](tools/msb_kakao_decrypt.py) (for decrypting animated kakao)
 - [msb_rlottie.py](tools/msb_rlottie.py) (for converting TGS)

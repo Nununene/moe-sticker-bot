@@ -101,6 +101,7 @@ func findLinkWithType(s string) (string, string) {
 func findEmojis(s string) string {
 	out, err := exec.Command("msb_emoji.py", "string", s).Output()
 	if err != nil {
+		log.WithError(err).Warn("Failed to extract emojis")
 		return ""
 	}
 	return string(out)
@@ -109,16 +110,21 @@ func findEmojis(s string) string {
 func findEmojiList(s string) []string {
 	out, err := exec.Command("msb_emoji.py", "json", s).Output()
 	if err != nil {
+		log.WithError(err).Warn("Failed to parse emoji list")
 		return []string{}
 	}
 	list := []string{}
-	json.Unmarshal(out, &list)
+	if err := json.Unmarshal(out, &list); err != nil {
+		log.WithError(err).Warn("Failed to decode emoji list")
+		return []string{}
+	}
 	return list
 }
 
 func stripEmoji(s string) string {
 	out, err := exec.Command("msb_emoji.py", "text", s).Output()
 	if err != nil {
+		log.WithError(err).Warn("Failed to remove emojis from text")
 		return ""
 	}
 	return string(out)
