@@ -179,8 +179,8 @@ func confirmImport(c tele.Context, wantEmoji bool) error {
 		return err
 	}
 	ud.stickerData.id = checkGnerateSIDFromLID(ud.lineData)
+	setState(c, ST_PROCESSING)
 	workDir := filepath.Join(ud.workDir, ud.lineData.Id)
-	sendAskTitle_Import(c)
 	progressText, progressMsg, _ := sendProcessStarted(ud, c, "Starting import...")
 	var progressMu sync.Mutex
 	lastProgressEdit := time.Time{}
@@ -228,7 +228,8 @@ func confirmImport(c tele.Context, wantEmoji bool) error {
 		ud.stickerData.stickers[i].oPath = lf.OriginalFile
 		ud.stickerData.stickers[i].cPath = lf.ConvertedFile
 	}
-	return nil
+	setState(c, "waitSTitle")
+	return sendAskTitle_Import(c)
 }
 
 func trySearchKeyword(c tele.Context) bool {
